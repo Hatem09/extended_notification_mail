@@ -1,10 +1,12 @@
 <?php
 /**
- * Extended Nagios Notification Mail
+ * Extended Notification Mail
  *
- * Version 0.8
+ * Version 1.00
  *
+ * ------------------
  * Install:
+ * ------------------
  *
  * replace the notifying definitions in the misccomands.cfg. Make sure that PHP
  * is installed and the path to the PHP-binary is correct.
@@ -22,16 +24,35 @@
  *       }
  *
  *
+ * ------------------
  * Configuration:
+ * ------------------
  *
  * configure your domain address below in this file.
  *
  *
- * @author     Otto Berger <otto@bergerdata.de>
- * @copyright  Copyright (c) 2009, Otto Berger
- * @license    http://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
- * @version    $Id$
- */
+ * ------------------
+ * License:
+ * ------------------
+ *
+ * Copyright (c) 2009, Otto Berger
+ * Copyright (c) 2017, Yannick Charton
+ * 
+ * This file is part of Extended Notification Mail (or Extended Nagios Notification Mail).
+ * 
+ * Extended Notification Mail is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Extended Notification Mail is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Extended Notification Mail.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 // CONFIGURATION
