@@ -1,8 +1,10 @@
+#!/usr/bin/php -q
 <?php
+error_reporting(E_ALL ^ E_NOTICE);
 /**
  * Extended Notification Mail
  *
- * Version 1.00
+ * Version 2.00
  *
  * ------------------
  * Install:
@@ -57,18 +59,27 @@
 
 // CONFIGURATION
 
+$config['nagios_server']        = 'mymonitoringserver.mydomain';
+
 /**
 * Nagios url
 *
 * url to your nagios webinterface. Used for command-links inside the mail.
 */
-$config['nagios_url']           = 'http://example.com/nagios';
+$config['nagios_url']           = 'http://mymonitoringserver.mydomain/icingaweb2';
+
+/**
+* Nagios url
+*
+* url to your nagios webinterface. Used for command-links inside the mail.
+*/
+$config['pnp4nagios_url']       = 'http://mymonitoringserver.mydomain/pnp4nagios';
 
 /**
 * From-address of the notification mail
 *
 */
-$config['mail_from_address'] 	= 'monitoring@example.com';
+$config['mail_from_address'] 	= 'icinga@mymonitoringserver.mydomain';
 
 /**
 * additional to mail-to-address
@@ -83,14 +94,18 @@ $config['mail_add_to_address']  = '';
 *
 * you can use all Nagios-vars here, see example
 */
-$config['mail_subject_host']    = '[M] Host %%NOTIFICATIONTYPE%% %%HOSTNAME%% is %%HOSTSTATE%% (%%NOTIFICATIONNUMBER%%)';
+//$config['mail_subject_host']    = '[M] Host %%NOTIFICATIONTYPE%% %%HOSTNAME%% is %%HOSTSTATE%% (%%NOTIFICATIONNUMBER%%)';
+// Macro HOSTNOTIFICATIONNUMBER not available in Icinga2
+$config['mail_subject_host']    = '[I2] Host %%NOTIFICATIONTYPE%% %%HOSTNAME%% is %%HOSTSTATE%%';
 
 /**
 * mail-subject template (service notification)
 *
 * you can use all Nagios-vars here, see example
 */
-$config['mail_subject_service'] = '[M] Service %%NOTIFICATIONTYPE%% %%HOSTNAME%% %%SERVICEDESC%% is %%SERVICESTATE%% (%%NOTIFICATIONNUMBER%%)';
+//$config['mail_subject_service'] = '[M] Service %%NOTIFICATIONTYPE%% %%HOSTNAME%% %%SERVICEDESC%% is %%SERVICESTATE%% (%%NOTIFICATIONNUMBER%%)';
+// Macro SERVICENOTIFICATIONNUMBER not available in Icinga2
+$config['mail_subject_service'] = '[I2] Service %%NOTIFICATIONTYPE%% %%HOSTNAME%% %%SERVICEDESC%% is %%SERVICESTATE%%';
 
 /**
 * additional mail-headers
@@ -110,7 +125,7 @@ $config['mail_add_headers'] = array(
 * enables the debug mode. All variables sent from nagios are printed at the end
 * of the mail. Attention: only visible in the text-only variant of the mail!
 */
-$config['debug'] = false;
+$config['debug'] = True;
 
 
 
@@ -128,39 +143,6 @@ $config['groups'][] = array(
 	'name' => 'Host details',
 	'active' => true,
 	'branches' => array(
-		array(
-			'name'  => 'Host Informations',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Hostname',
-					'nagios_env'    => 'HOSTNAME',
-					'required'      => true,
-					),
-				array(
-					'name'          => 'Alias',
-					'nagios_env'    => 'HOSTALIAS',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Address',
-					'nagios_env'    => 'HOSTADDRESS',
-					'required'      => true,
-					'type'          => 'link',
-					),
-				array(
-					'name'          => 'Description',
-					'nagios_env'    => 'HOSTNOTES',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'URL',
-					'nagios_env'    => 'HOSTNOTESURL',
-					'required'      => false,
-					'type'          => 'link',
-					),
-				),
-			),
 		array(
 			'name'  => 'Host State',
 			'active' => true,
@@ -193,8 +175,41 @@ $config['groups'][] = array(
 				),
 			),
 		array(
+                        'name'  => 'Host Informations',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Hostname',
+                                        'nagios_env'    => 'HOSTNAME',
+                                        'required'      => true,
+                                        ),
+                                array(
+                                        'name'          => 'Alias',
+                                        'nagios_env'    => 'HOSTALIAS',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Address',
+                                        'nagios_env'    => 'HOSTADDRESS',
+                                        'required'      => true,
+                                        'type'          => 'link',
+                                        ),
+                                array(
+                                        'name'          => 'Description',
+                                        'nagios_env'    => 'HOSTNOTES',
+                                        'required'      => false,
+                                        ),
+                                //array(
+                                //        'name'          => 'URL',
+                                //        'nagios_env'    => 'HOSTNOTESURL',
+                                //        'required'      => false,
+                                //        'type'          => 'link',
+                                //        ),
+                                ),
+                        ),
+		array(
 			'name'  => 'Host Group',
-			'active' => true,
+			'active' => false,
 			'data'  => array(
 				array(
 					'name'          => 'Group',
@@ -219,25 +234,45 @@ $config['groups'][] = array(
 					),
 				),
 			),
-		array(
-			'name'  => 'Host-Acknowledgement',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Author',
-					'nagios_env'    => 'HOSTACKAUTHOR',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Comment',
-					'nagios_env'    => 'HOSTACKCOMMENT',
-					'required'      => false,
-					),
-				),
-			),
+                array(
+                        'name'  => 'Host Times',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Last Check',
+                                        'nagios_env'    => 'LASTHOSTCHECK',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last State-Change',
+                                        'nagios_env'    => 'LASTHOSTSTATECHANGE',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Up',
+                                        'nagios_env'    => 'LASTHOSTUP',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Down',
+                                        'nagios_env'    => 'LASTHOSTDOWN',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Unreachable',
+                                        'nagios_env'    => 'LASTHOSTUNREACHABLE',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                ),
+                        ),
 		array(
 			'name'  => 'Host State Data',
-			'active' => true,
+			'active' => false,
 			'data'  => array(
 				array(
 					'name'          => 'Command',
@@ -272,42 +307,22 @@ $config['groups'][] = array(
 					),
 				),
 			),
-		array(
-			'name'  => 'Host Times',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Last Check',
-					'nagios_env'    => 'LASTHOSTCHECK',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last State-Change',
-					'nagios_env'    => 'LASTHOSTSTATECHANGE',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Up',
-					'nagios_env'    => 'LASTHOSTUP',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Down',
-					'nagios_env'    => 'LASTHOSTDOWN',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Unrechable',
-					'nagios_env'    => 'LASTHOSTUNREACHABLE',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				),
-			)
+                array(
+                        'name'  => 'Host-Acknowledgement',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Author',
+                                        'nagios_env'    => 'HOSTACKAUTHOR',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Comment',
+                                        'nagios_env'    => 'HOSTACKCOMMENT',
+                                        'required'      => false,
+                                        ),
+                                ),
+                        )
 		)
 	);
 
@@ -318,80 +333,6 @@ $config['groups'][] = array(
 	'name' => 'Service details',
 	'active' => true,
 	'branches' => array(
-		array(
-			'name'  => 'Servive details',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Service',
-					'nagios_env'    => 'SERVICEDESC',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Command',
-					'nagios_env'    => 'SERVICECHECKCOMMAND',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Type',
-					'nagios_env'    => 'SERVICECHECKTYPE',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Latency',
-					'nagios_env'    => 'SERVICELATENCY',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Percentage',
-					'nagios_env'    => 'SERVICEPERCENTCHANGE',
-					'required'      => false,
-					),
-				),
-			),
-		array(
-			'name'  => 'Service Group',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Group',
-					'nagios_env'    => 'SERVICEGROUPNAME',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Group Alias',
-					'nagios_env'    => 'SERVICEGROUPALIAS',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Notes',
-					'nagios_env'    => 'SERVICEGROUPNOTES',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Notes',
-					'nagios_env'    => 'SERVICEGROUPNOTESURL',
-					'required'      => false,
-					'type'          => 'link',
-					),
-				),
-			),
-		array(
-			'name'  => 'Service-Acknowledgement',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Author',
-					'nagios_env'    => 'SERVICEACKAUTHOR',
-					'required'      => false,
-					),
-				array(
-					'name'          => 'Comment',
-					'nagios_env'    => 'SERVICEACKCOMMENT',
-					'required'      => false,
-					),
-				),
-			),
 		array(
 			'name'  => 'Service State',
 			'active' => true,
@@ -423,60 +364,139 @@ $config['groups'][] = array(
 					),
 				),
 			),
+                array(
+                        'name'  => 'Service details',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Service',
+                                        'nagios_env'    => 'SERVICEDESC',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Command',
+                                        'nagios_env'    => 'SERVICECHECKCOMMAND',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Type',
+                                        'nagios_env'    => 'SERVICECHECKTYPE',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Latency',
+                                        'nagios_env'    => 'SERVICELATENCY',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Percentage',
+                                        'nagios_env'    => 'SERVICEPERCENTCHANGE',
+                                        'required'      => false,
+                                        ),
+                                ),
+                        ),
+		array(
+                        'name'  => 'Service Group',
+                        'active' => false,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Group',
+                                        'nagios_env'    => 'SERVICEGROUPNAME',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Group Alias',
+                                        'nagios_env'    => 'SERVICEGROUPALIAS',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Notes',
+                                        'nagios_env'    => 'SERVICEGROUPNOTES',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Notes',
+                                        'nagios_env'    => 'SERVICEGROUPNOTESURL',
+                                        'required'      => false,
+                                        'type'          => 'link',
+                                        ),
+                                ),
+                        ),
+                array(
+                        'name'  => 'Service Times',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Last Check',
+                                        'nagios_env'    => 'LASTSERVICECHECK',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last State-Change',
+                                        'nagios_env'    => 'LASTSERVICESTATECHANGE',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last OK',
+                                        'nagios_env'    => 'LASTSERVICEOK',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Critical',
+                                        'nagios_env'    => 'LASTSERVICECRITICAL',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Warning',
+                                        'nagios_env'    => 'LASTSERVICEWARNING',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                array(
+                                        'name'          => 'Last Unknown',
+                                        'nagios_env'    => 'LASTSERVICEUNKNOWN',
+                                        'required'      => false,
+                                        'type'          => 'timestamp',
+                                        ),
+                                ),
+                        ),
 		array(
 			'name'  => 'Service-Output',
 			'active' => true,
 			'data'  => array(
 				array(
-					'name'          => false,
+					'name'          => 'Output',
 					'nagios_env'    => 'SERVICEOUTPUT',
 					'required'      => false,
 					),
-				),
+                                array(
+                                        'name'          => 'Details',
+                                        'nagios_env'    => 'LONGSERVICEOUTPUT',
+                                        'required'      => false,
+                                        ),
+                                ),
 			),
-		array(
-			'name'  => 'Service Times',
-			'active' => true,
-			'data'  => array(
-				array(
-					'name'          => 'Last Check',
-					'nagios_env'    => 'LASTSERVICECHECK',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last State-Change',
-					'nagios_env'    => 'LASTSERVICESTATECHANGE',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last OK',
-					'nagios_env'    => 'LASTSERVICEOK',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Critical',
-					'nagios_env'    => 'LASTSERVICECRITICAL',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Warning',
-					'nagios_env'    => 'LASTSERVICEWARNING',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				array(
-					'name'          => 'Last Unknown',
-					'nagios_env'    => 'LASTSERVICEUNKNOWN',
-					'required'      => false,
-					'type'          => 'timestamp',
-					),
-				),
+                array(
+                        'name'  => 'Service-Acknowledgement',
+                        'active' => true,
+                        'data'  => array(
+                                array(
+                                        'name'          => 'Author',
+                                        'nagios_env'    => 'SERVICEACKAUTHOR',
+                                        'required'      => false,
+                                        ),
+                                array(
+                                        'name'          => 'Comment',
+                                        'nagios_env'    => 'SERVICEACKCOMMENT',
+                                        'required'      => false,
+                                        ),
+                                ),
 			)
-		)
+                )
 	);
 
 
@@ -485,7 +505,7 @@ $config['groups'][] = array(
 
 $config['groups'][] = array(
 	'name' => 'Contact details',
-	'active' => true,
+	'active' => false,
 	'branches' => array(
 		array(
 			'name'  => 'Contact Info',
@@ -543,7 +563,7 @@ $config['groups'][] = array(
 
 $config['groups'][] = array(
 	'name' => 'Statistics',
-	'active' => true,
+	'active' => false,
 	'branches' => array(
 		array(
 			'name'  => 'Hosts-Totals',
@@ -659,13 +679,20 @@ class Nagios_Mail {
 
 	function __construct() {
 
+		$File = "/tmp/nee_debug.txt";
+		$Handle = fopen($File, 'w');
+                fwrite($Handle, "-------------------------\n");
 		foreach ($_ENV as $key => $value) {
-
-			if (strpos($key, 'NAGIOS_') !== false) {
-				$this->nagios[substr($key, 7)] = $value;
+			fwrite($Handle, $key." => ".$value."\n");
+			if (strpos($key, 'ICINGA_') !== false) {
+				if ((substr($key, 7) == "HOSTDURATION" or substr($key, 7) == "SERVICEDURATION") and is_numeric($value)) {
+                                     $value = gmdate("H:i:s", $value);
+                                }
+                                $this->nagios[substr($key, 7)] = $value;
 				$this->replace['%%' . substr($key, 7) . '%%'] = $value;
 			}
 		}
+		fclose($Handle);
 	}
 
 	function build() {
@@ -683,7 +710,15 @@ class Nagios_Mail {
 				$this->notification_type = 'HOST_ACK';
 			}
 		}
-
+		
+		if (!empty($this->nagios['LONGHOSTOUTPUT']) && ($this->nagios['LONGHOSTOUTPUT'] == '<br>' || $this->nagios['LONGHOSTOUTPUT'] == '\n')) {
+		        $this->nagios['LONGHOSTOUTPUT'] = '';
+		}
+		if (!empty($this->nagios['LONGSERVICEOUTPUT']) && ($this->nagios['LONGSERVICEOUTPUT'] == '<br>' || $this->nagios['LONGSERVICEOUTPUT'] == '\n')) {
+		        $this->nagios['LONGSERVICEOUTPUT'] = '';
+		}
+		$this->nagios['SERVICEOUTPUT'] = str_replace('<a href=/','<a href=http://'.$this->config['nagios_server'].'/',$this->nagios['SERVICEOUTPUT']);
+                
 		$this->str_info = '';
 
 		if (!count($this->nagios)) {
@@ -703,7 +738,7 @@ class Nagios_Mail {
 						} else {
 							$value = $field['nagios_env'];
 						}
-						$this->nagios[$field['nagios_env']] = $value;
+						$this->nagios[$field['nagios_env']] = (strlen($value) > 17) ? substr($value, 0, 17) . "..." : $value;
 					}
 				}
 			}
@@ -725,13 +760,16 @@ class Nagios_Mail {
 
 					switch ($this->nagios['HOSTSTATE']) {
 						case 'UP' :
-							$this->notification_color = 'green';
+							$this->notification_color = '#00CC33'; // green
 						break;
 						case 'DOWN' :
-							$this->notification_color = 'red';
+							$this->notification_color = '#FF0000'; // red
 						break;
 						case 'UNREACHABLE' :
-							$this->notification_color = 'red';
+							$this->notification_color = '#FF0000'; // red
+						break;
+						default :
+							$this->notification_color = '#999999'; // grey
 						break;
 					}
 
@@ -746,16 +784,18 @@ class Nagios_Mail {
 
 					switch ($this->nagios['SERVICESTATE']) {
 						case 'OK' :
-							$this->notification_color = 'green';
+							$this->notification_color = '#00CC33'; // green
 						break;
 						case 'WARNING' :
-							$this->notification_color = 'orange';
+							$this->notification_color = '#FF6600'; // orange
 						break;
-						case 'UNKNOWN' :
-							$this->notification_color = 'white';
 						break;
 						case 'CRITICAL' :
-							$this->notification_color = 'red';
+							$this->notification_color = '#FF0000'; // red
+						break;
+						case 'UNKNOWN' :
+						default :
+							$this->notification_color = '#999999'; // grey
 						break;
 					}
 
@@ -821,8 +861,14 @@ class Nagios_Mail {
 
 		if (strpos($this->notification_type, 'HOST') !== false) {
 			$output_text[] = '*Output*: ' . $this->nagios['HOSTOUTPUT'];
+			if (!empty($this->nagios['LONGHOSTOUTPUT'])) {
+				$output_text[] = '\n*Details*: \n' . $this->nagios['LONGHOSTOUTPUT'];
+			}
 		} else {
 			$output_text[] = '*Output*: ' . $this->nagios['SERVICEOUTPUT'];
+			if (!empty($this->nagios['LONGSERVICEOUTPUT'])) {
+				$output_text[] = '\n*Details*: \n' . $this->nagios['LONGSERVICEOUTPUT'];
+			}
 		}
 
 		$output_text[] = '';
@@ -898,10 +944,18 @@ class Nagios_Mail {
 
 			if ($this->notification_type == 'HOST' && $this->nagios['NOTIFICATIONTYPE'] == 'PROBLEM') {
 				$output_text[] = '/Acknowledge this problem/:';
-				$output_text[] = '<' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=33&host=' . $this->nagios['HOSTNAME'] . '>';
+				$output_text[] = '<' . $this->config['nagios_url'] . '/monitoring/host/acknowledge-problem?host=' . $this->nagios['HOSTNAME'] . '>';
 			} elseif ($this->notification_type == 'SERVICE' && $this->nagios['NOTIFICATIONTYPE'] == 'PROBLEM') {
 				$output_text[] = '/Acknowledge this problem/:';
-				$output_text[] = '<' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=34&host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '>';
+				$output_text[] = '<' . $this->config['nagios_url'] . '/monitoring/service/acknowledge-problem?host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '>';
+			}
+
+			if ($this->notification_type == 'HOST') {
+				$output_text[] = '/Add a comment/:';
+				$output_text[] = '<' . $this->config['nagios_url'] . '/monitoring/host/add-comment?host=' . $this->nagios['HOSTNAME'] . '>';
+			} elseif ($this->notification_type == 'SERVICE') {
+				$output_text[] = '/Add a comment/:';
+				$output_text[] = '<' . $this->config['nagios_url'] . '/monitoring/service/add-comment?host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '>';
 			}
 
 			$output_text[] = '';
@@ -928,17 +982,22 @@ class Nagios_Mail {
 		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 		<html xmlns="http://www.w3.org/1999/xhtml">
 		<head>
+		<title></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15" />
-		<meta name = "viewport" content = "width = 600">
+		<meta name="viewport" content="width=600" />
 		</head>
 
 		<body style="font-family: 'Courier New', Courier, monospace; font-size: 8pt;">
 
 END;
 
+		$output_html[] = '<table cellpadding="0" cellspacing="0" width="100%" style="font-family: \'Courier New\', Courier, monospace; font-size: 8pt;">';
+		$output_html[] = '<tr>';
+		$output_html[] = '<td width="16"><div style="height:16px;width:16px;background-color:' . $this->notification_color . ';">&nbsp;</div></td>';
+		$output_html[] = '<td style="font-size:15pt;font-weight:bold;color:#666666;padding-left:4px">Icinga2 Monitoring Message</td>';
+		$output_html[] = '</tr>';
+		$output_html[] = '</table>';
 
-		$output_html[] = '<div style="float:left;height:16px;width:16px;margin:7px 5px 0 0;background-color:' . $this->notification_color . ';"></div>';
-		$output_html[] = '<h1 style="font-size:15pt;font-weight:bold;color:#666666;margin:5px 0 5px 0;display:block;float:left;">Nagios Monitoring Message</h1>';
 		$output_html[] = '<div style="background-color:#CCC;padding:5px;clear:both;">';
 		$output_html[] = '<div style="font-weight:bold;">';
 		$output_html[] = $this->str_info;
@@ -946,9 +1005,19 @@ END;
 		$output_html[] = '<div style="margin-bottom:10px;">';
 
 		if (strpos($this->notification_type, 'HOST') !== false) {
-			$output_html[] = '<strong>Output:</strong> ' . $this->nagios['HOSTOUTPUT'];
+			//$output_html[] = '<strong>Output:</strong> ' . str_replace('\n','<br>',$this->nagios['HOSTOUTPUT']);
+			$output_html[] = '<strong>Output:</strong> ' . nl2br($this->nagios['HOSTOUTPUT'], true);
+			if (!empty($this->nagios['LONGHOSTOUTPUT'])) {
+				//$output_html[] = '<br><strong>Details:</strong><br>' . str_replace('\n','<br>',$this->nagios['LONGHOSTOUTPUT']);
+				$output_html[] = '<br><strong>Details:</strong><br>' . nl2br($this->nagios['LONGHOSTOUTPUT'], true);
+			}
 		} else {
-			$output_html[] = '<strong>Output:</strong> ' . $this->nagios['SERVICEOUTPUT'];
+			//$output_html[] = '<strong>Output:</strong> ' . str_replace('\n','<br>',$this->nagios['SERVICEOUTPUT']);
+			$output_html[] = '<strong>Output:</strong> ' . nl2br($this->nagios['SERVICEOUTPUT'], true);
+			if (!empty($this->nagios['LONGSERVICEOUTPUT'])) {
+				//$output_html[] = '<br><strong>Details:</strong><br>' . str_replace('\n','<br>',$this->nagios['LONGSERVICEOUTPUT']);
+				$output_html[] = '<br><strong>Details:</strong><br>' . nl2br($this->nagios['LONGSERVICEOUTPUT'], true);
+			}
 		}
 
 		$output_html[] = '</div>';
@@ -956,12 +1025,24 @@ END;
 		if ($this->config['nagios_url']) {
 			$output_html[] = '<div>';
 
-			$output_html[] = '<a href="' . $this->config['nagios_url'] . '">' . $this->config['nagios_url'] . '</a>';
+			#Links
+			$output_html[] = 'Links: ';
+			$output_html[] = '<a href="' . $this->config['nagios_url'] . '">Icinga2 Dashboard</a>';
+			$output_html[] = ' &#124; <a href="' . $this->config['nagios_url'] . '/monitoring/host/show?host=' . $this->nagios['HOSTNAME'] . '#!/icingaweb2/monitoring/host/services?host=' . $this->nagios['HOSTNAME'] . '">Icinga2 host specific view</a>';
+			$output_html[] = ' &#124; <a href="' . $this->config['pnp4nagios_url'] . '/graph?host=' . $this->nagios['HOSTNAME'] . '&srv=_HOST_">Host graphs</a><br>';
+
+			#Actions
+			$output_html[] = 'Actions: ';
+			if ($this->notification_type == 'HOST') {
+				$output_html[] = '<a href="' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=1&host=' . $this->nagios['HOSTNAME'] . '">Add a comment</a>';
+			} elseif ($this->notification_type == 'SERVICE') {
+				$output_html[] = '<a href="' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=3&host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '">Add a comment</a>';
+			}
 
 			if ($this->notification_type == 'HOST' && $this->nagios['NOTIFICATIONTYPE'] == 'PROBLEM') {
-				$output_html[] = ' &#124; <a href="' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=33&host=' . $this->nagios['HOSTNAME'] . '">Acknowledge this problem</a>';
+				$output_html[] = ' &#124; <a href="' . $this->config['nagios_url'] . '/monitoring/host/acknowledge-problem?host=' . $this->nagios['HOSTNAME'] . '">Acknowledge this problem</a>';
 			} elseif ($this->notification_type == 'SERVICE' && $this->nagios['NOTIFICATIONTYPE'] == 'PROBLEM') {
-				$output_html[] = ' &#124; <a href="' . $this->config['nagios_url'] . '/cgi-bin/cmd.cgi?cmd_typ=34&host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '">Acknowledge this problem</a>';
+				$output_html[] = ' &#124; <a href="' . $this->config['nagios_url'] . '/monitoring/service/acknowledge-problem?host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '">Acknowledge this problem</a>';
 			}
 
 			$output_html[] = '</div>';
@@ -979,6 +1060,8 @@ END;
 
 			foreach ($group['branches'] as $branch) {
 
+
+
 				if (!$branch['active'] || $branch['active'] != $this->notification_type) {
 					continue;
 				}
@@ -993,11 +1076,13 @@ END;
 					}
 				}
 
+				$branch_html = array();
+
 				if ($branch_active) {
 
-					$group_html[] = '<table cellspacing="0" cellpadding="0" style="font-size: 8pt;border:1px solid #CFCFCF; width:280px; margin: 0 5px 5px 0; float:left;">';
-					$group_html[] = '<thead style="font-weight:bold; color:#003399; background-color:#CFCFCF;"><tr><td colspan="2">' . $branch['name'] . '</td></tr></thead>';
-					$group_html[] = '<tbody>';
+					$branch_html[] = '<table cellspacing="0" cellpadding="0" width="450" style="border:1px solid #CFCFCF; font-family: \'Courier New\', Courier, monospace; font-size: 8pt;">';
+					$branch_html[] = '<thead style="font-weight:bold; color:#003399; background-color:#CFCFCF;"><tr><td colspan="2">' . $branch['name'] . '</td></tr></thead>';
+					$branch_html[] = '<tbody>';
 
 					foreach ($branch['data'] as $field) {
 
@@ -1029,23 +1114,50 @@ END;
 							}
 
 							if ($field['name']) {
-								$group_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;width:120px; font-weight:bold;">%s</td><td>%s</td></tr>', $field['name'], $field['value']);
+								//$branch_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;width:125px; font-weight:bold;">%s</td><td>%s</td></tr>', $field['name'], str_replace('\n','<br>',$field['value']));
+								$branch_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;width:125px; font-weight:bold;">%s</td><td>%s</td></tr>', $field['name'], nl2br($field['value'],true));
 							} else {
-								$group_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;" colspan="2">%s</td></tr>', $field['value']);
+								//$branch_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;" colspan="2">%s</td></tr>', str_replace('\n','<br>',$field['value']));
+								$branch_html[] = sprintf('<tr><td style="padding:1px 2px 1px 2px;" colspan="2">%s</td></tr>', nl2br($field['value'],true));
 							}
 						}
 					}
 
-					$group_html[] = '</tbody>';
-					$group_html[] = '</table>';
+					$branch_html[] = '</tbody>';
+					$branch_html[] = '</table>';
 
-					$group_html[] = '';
+					$branch_html[] = '';
 				}
+
+				$group_html[] = implode("\n", $branch_html);
+
 			}
 
 			if (count($group_html)) {
+
 				$output_html[] = '<h2 style="font-size:10pt;font-weight:bold;color:#666666;border-bottom:1px solid #CCCCCC;clear:both;margin-top:15px;">' . $group['name'] . '</h2>';
-				$output_html[] = implode("\n", $group_html);
+
+				$output_html[] = '<table width="100%" cellpadding="0" cellspacing="0">';
+
+				if (count($group_html) % 2 !== 0) {
+					$group_html[] = "";
+				}
+
+				foreach ($group_html as $i => $html) {
+
+					if ($i % 2 == 0) {
+
+						if ($i != 0){
+							$output_html[] = '</tr>';
+						}
+
+						$output_html[] = '<tr>';
+					}
+
+					$output_html[] = '<td ' . (($i % 2 == 0) ? 'width="455" ' : '') . 'valign="top" align="left" style="padding: 0 0 5px 0">' . $html . '</td>';
+				}
+				$output_html[] = '</tr>';
+				$output_html[] = '</table>';
 			}
 		}
 
