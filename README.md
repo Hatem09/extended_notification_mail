@@ -2,11 +2,12 @@
 # Extended Nagios Notification Mail
 
 ## TABLE OF CONTENTS
-    * [INSTALL](#install)
-       * [For Nagios/Icinga](#for-nagiosicinga)
-       * [For Icinga2](#for-icinga2)
-    * [CONFIGURATION](#configuration)
-    * [TEST](#test)
+
+- [INSTALL](#install)
+  * [For Nagios/Icinga](#for-nagiosicinga)
+  * [For Icinga2](#for-icinga2)
+- [CONFIGURATION](#configuration)
+- [TEST](#test)
 
 
 ## INSTALL
