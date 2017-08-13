@@ -1,6 +1,12 @@
 
 CHANGELOG
 
+2.0.0
+  LONGHOSTOUTPUT / LONGSERVICEOUTPUT in standard output
+  correctly convert newline in HTML for LONGHOSTOUTPUT / LONGSERVICEOUTPUT
+  support of Icinga, Icinga2, Icingaweb2, Pnp4nagios
+  other various things
+
 0.8.0
   added additional header configuration
   improved documentation
