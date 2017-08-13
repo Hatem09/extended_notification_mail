@@ -44,7 +44,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 * monitoring_server: fqdn of the monitoring server
 * monitoring_url:    url to your the Nagios CGIs / Icingaweb2 webinterface. Used for command-links inside the mail
 */
-$config['monitoring_engine']    = "icinga2"
+$config['monitoring_engine']    = "icinga2";
 $config['monitoring_server']    = 'mymonitoringserver.mydomain';
 $config['monitoring_url']       = 'http://mymonitoringserver.mydomain/icingaweb2';
 
@@ -61,7 +61,7 @@ if ($config['monitoring_engine'] == "nagios") {
 * grapher: can be "pnp4nagios", "icinga", or "icinga2"
 * grapher_url: url to your grapher webinterface. Used for command-links inside the mail.
 */
-$config['grapher']              = "pnp4nagios"
+$config['grapher']              = "pnp4nagios";
 $config['grapher_url']          = 'http://mymonitoringserver.mydomain/pnp4nagios';
 
 
@@ -88,7 +88,7 @@ $config['mail_add_headers'] = array(
 	//'Importance: High',
 	);
 
-if (! $this->config['mail_subject_host']) {
+if (! $config['mail_subject_host']) {
 	if ($config['monitoring_engine'] == "icinga2") {
 		// Macro HOSTNOTIFICATIONNUMBER not available in Icinga2
 		$config['mail_subject_host']    = '[I2] Host %%NOTIFICATIONTYPE%% %%HOSTNAME%% is %%HOSTSTATE%%';
@@ -102,7 +102,7 @@ if (! $this->config['mail_subject_host']) {
 	}
 }
 
-if (! $this->config['mail_subject_service']) {
+if (! $config['mail_subject_service']) {
 	if ($config['monitoring_engine'] == "icinga2") {
 		// Macro SERVICENOTIFICATIONNUMBER not available in Icinga2
 		$config['mail_subject_service'] = '[I2] Service %%NOTIFICATIONTYPE%% %%HOSTNAME%% %%SERVICEDESC%% is %%SERVICESTATE%%';
@@ -677,7 +677,7 @@ class Nagios_Mail {
 		fwrite($Handle, "-------------------------\n");
 		foreach ($_ENV as $key => $value) {
 			fwrite($Handle, $key." => ".$value."\n");
-			if (strpos($key, $this->$config['env_var_prefix']) !== false) {
+			if (strpos($key, $this->config['env_var_prefix']) !== false) {
 				if ((substr($key, 7) == "HOSTDURATION" or substr($key, 7) == "SERVICEDURATION") and is_numeric($value)) {
 					$value = gmdate("H:i:s", $value);
 				}
@@ -987,7 +987,7 @@ END;
 		$output_html[] = '<table cellpadding="0" cellspacing="0" width="100%" style="font-family: \'Courier New\', Courier, monospace; font-size: 8pt;">';
 		$output_html[] = '<tr>';
 		$output_html[] = '<td width="16"><div style="height:16px;width:16px;background-color:' . $this->notification_color . ';">&nbsp;</div></td>';
-		$output_html[] = '<td style="font-size:15pt;font-weight:bold;color:#666666;padding-left:4px">' . $this->$config['mail_body_title'] . '</td>';
+		$output_html[] = '<td style="font-size:15pt;font-weight:bold;color:#666666;padding-left:4px">' . $this->config['mail_body_title'] . '</td>';
 		$output_html[] = '</tr>';
 		$output_html[] = '</table>';
 
@@ -1018,12 +1018,12 @@ END;
 		if ($this->config['monitoring_url']) {
 			$output_html[] = '<div>';
 
-			if (this->$config['monitoring_engine'] == "icinga2") {
+			if ($this->config['monitoring_engine'] == "icinga2") {
 				#Links
 				$output_html[] = 'Links: ';
 				$output_html[] = '<a href="' . $this->config['monitoring_url'] . '">Icinga2 Dashboard</a>';
 				$output_html[] = ' &#124; <a href="' . $this->config['monitoring_url'] . '/monitoring/host/show?host=' . $this->nagios['HOSTNAME'] . '#!/icingaweb2/monitoring/host/services?host=' . $this->nagios['HOSTNAME'] . '">Icinga2 host specific view</a>';
-				if (this->$config['grapher'] == "pnp4nagios") {
+				if ($this->config['grapher'] == "pnp4nagios") {
 					$output_html[] = ' &#124; <a href="' . $this->config['grapher_url'] . '/graph?host=' . $this->nagios['HOSTNAME'] . '&srv=_HOST_">Host graphs</a><br>';
 				}
 				
@@ -1040,12 +1040,12 @@ END;
 				} elseif ($this->notification_type == 'SERVICE' && $this->nagios['NOTIFICATIONTYPE'] == 'PROBLEM') {
 					$output_html[] = ' &#124; <a href="' . $this->config['monitoring_url'] . '/monitoring/service/acknowledge-problem?host=' . $this->nagios['HOSTNAME'] . '&service=' . $this->nagios['SERVICEDESC'] . '">Acknowledge this problem</a>';
 				}
-			} elseif (this->$config['monitoring_engine'] == "icinga") {
+			} elseif ($this->config['monitoring_engine'] == "icinga") {
 				#Links
 				$output_html[] = 'Links: ';
 				$output_html[] = '<a href="' . $this->config['monitoring_url'] . '">Icinga Tactical Overview</a>';
 				$output_html[] = ' &#124; <a href="' . $this->config['monitoring_url'] . '/cgi-bin/status.cgi?host=' . $this->nagios['HOSTNAME'] . '&nostatusheader">Icinga host specific view</a>';
-				if (this->$config['grapher'] == "pnp4nagios") {
+				if ($this->config['grapher'] == "pnp4nagios") {
 					$output_html[] = ' &#124; <a href="' . $this->config['grapher_url'] . '/graph?host=' . $this->nagios['HOSTNAME'] . '&srv=_HOST_">Host graphs</a><br>';
 				}
 				
@@ -1067,7 +1067,7 @@ END;
 				$output_html[] = 'Links: ';
 				$output_html[] = '<a href="' . $this->config['monitoring_url'] . '">Nagios Tactical Overview</a>';
 				$output_html[] = ' &#124; <a href="' . $this->config['monitoring_url'] . '/cgi-bin/status.cgi?host=' . $this->nagios['HOSTNAME'] . '&nostatusheader">Nagios host specific view</a>';
-				if (this->$config['grapher'] == "pnp4nagios") {
+				if ($this->config['grapher'] == "pnp4nagios") {
 					$output_html[] = ' &#124; <a href="' . $this->config['grapher_url'] . '/graph?host=' . $this->nagios['HOSTNAME'] . '&srv=_HOST_">Host graphs</a><br>';
 				}
 				
