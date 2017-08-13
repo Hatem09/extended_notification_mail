@@ -1,16 +1,18 @@
 name: Extended Notification Mail
-description: Later
-url: >
-  https://github.com/Tontonitch/extended_notification_mail
+description: "file:///README.md"
+url: "https://github.com/Tontonitch/extended_notification_mail"
 tags: email, notificationcommand
-vendor: linux
+vendor: Linux
 target: mail
 type: notification command, notification
-license: >
-  GNU Library or "Lesser" General Public
-  License version 3.0
-releases:
+license: gplv3
+releases: 
   - 
-    name: v1.00
-    description: Extended Notification Mail
-    files: [ "file:///extended_notification_mail.php" "icinga2_commands-notifications.conf" ]
+    name: 1.0
+    description: "1.0 Release"
+    files: 
+      - 
+        name: extended_notification_mail.php
+        url: "file:///extended_notification_mail.php"
+        description: "First release"
+        checksum: 4cd02f1c9ce250f4771dfda888dd4231
