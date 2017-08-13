@@ -1,0 +1,16 @@
+name: Extended Notification Mail
+description: Later
+url: >
+  https://github.com/Tontonitch/extended_notification_mail
+tags: email, notificationcommand
+vendor: linux
+target: mail
+type: notification command, notification
+license: >
+  GNU Library or "Lesser" General Public
+  License version 3.0
+releases:
+  - 
+    name: v1.00
+    description: Extended Notification Mail
+    files: [ "file:///extended_notification_mail.php" "icinga2_commands-notifications.conf" ]
