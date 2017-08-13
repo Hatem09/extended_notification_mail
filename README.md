@@ -1,5 +1,5 @@
 
-# Extended Nagios Notification Mail
+# Extended Notification Mail
 
 ## TABLE OF CONTENTS
 
