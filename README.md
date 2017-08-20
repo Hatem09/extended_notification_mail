@@ -28,7 +28,6 @@ define command {
       command_name    notify-host-by-email-extended
       command_line    /usr/bin/php -q $USER1$/extended_notification_mail.php
       }
-
 define command {
       command_name    notify-service-by-email-extended
       command_line    /usr/bin/php -q $USER1$/extended_notification_mail.php
