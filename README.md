@@ -51,6 +51,7 @@ variables_order = "EGPCS"
 ```
 * Put the extended_notification_mail.php script in the /etc/icinga2/scripts/ directory
 * Create the mail-host-notification-extended and mail-service-notification-extended NotificationCommand objects as following:
+
 ```
 /* NotificationCommand objects for Extended Notification Mail*/
 
