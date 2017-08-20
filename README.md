@@ -8,6 +8,8 @@
   * [For Icinga2](#for-icinga2)
 - [CONFIGURATION](#configuration)
 - [TEST](#test)
+- [SCREENSHOTS](#screenshots)
+- [LICENSE](#license)
 
 
 ## INSTALL
@@ -244,11 +246,11 @@ object NotificationCommand "mail-service-notification-extended" {
 ```
 * You should recieve a test-email to the specified address.
 
-## Screenshots
+## SCREENSHOTS
 
 ![id_img_example3_service_ok_yahoo.png](https://github.com/Tontonitch/extended_notification_mail/raw/master/screenshots/example3_service_ok_yahoo.png)
 
-## License
+## LICENSE
 
 ```
 @authors    Otto Berger <otto@bergerdata.de>
