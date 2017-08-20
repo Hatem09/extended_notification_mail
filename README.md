@@ -235,7 +235,6 @@ object NotificationCommand "mail-service-notification-extended" {
 
 * configure your domain address etc. at the top of the extended_notification_mail.php file.
 
-
 ## TEST
 
 * put your email-address in $config["mail_add_to_address"] statement.
@@ -245,6 +244,11 @@ object NotificationCommand "mail-service-notification-extended" {
 ```
 * You should recieve a test-email to the specified address.
 
+## Screenshots
+
+![id_img_example3_service_ok_yahoo.png](https://github.com/Tontonitch/extended_notification_mail/raw/master/screenshots/example3_service_ok_yahoo.png)
+
+## License
 
 ```
 @authors    Otto Berger <otto@bergerdata.de>
@@ -253,3 +257,4 @@ object NotificationCommand "mail-service-notification-extended" {
             Copyright (c) 2017, Yannick Charton
 @license    http://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
 ```
+
